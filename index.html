@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CASTLE CANTEEN — Smart Food Pre-Ordering</title>
+<style>
+:root{--g:#187a4b;--g2:#2da365;--bg:#f5f8f5;--ink:#172018;--muted:#6d766f;--line:#e1e8e2;--card:#fff;--cream:#fff7df;--red:#c74343}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#fdfcf7 0%,#f3f8f1 58%,#eef4ed 100%);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;position:relative;min-height:100vh;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-2;background:
+ radial-gradient(circle at 12% 12%,rgba(255,183,77,.22) 0 90px,transparent 91px),
+ radial-gradient(circle at 88% 16%,rgba(76,175,80,.16) 0 120px,transparent 121px),
+ linear-gradient(180deg,transparent 0 70%,rgba(42,75,52,.055) 70% 100%)}
+body:after{content:"☕    🥪    🍔    🥗    🍛    🧃    🍕";position:fixed;left:0;right:0;bottom:0;height:46px;display:flex;align-items:center;justify-content:center;word-spacing:18px;font-size:22px;letter-spacing:3px;color:#17643e25;pointer-events:none;z-index:-1}
+
+header{position:sticky;top:0;z-index:20;background:#fffffff2;backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.nav{max-width:1180px;margin:auto;padding:12px 18px;display:flex;align-items:center;gap:14px}.logo{font-size:21px;font-weight:900;display:flex;align-items:center;gap:9px}.mark{width:40px;height:40px;background:var(--g);color:#fff;border-radius:12px;display:grid;place-items:center}.navlinks{margin-left:auto;display:flex;gap:5px}.navlinks button{background:none;border:0;padding:9px 11px;border-radius:9px;color:#465047}.navlinks button:hover{background:#edf4ef}.cart{background:var(--g);color:#fff;border:0;border-radius:11px;padding:10px 14px;font-weight:800}.cartbar{margin:22px 0 4px;display:flex;justify-content:center}.cartbar button{min-width:260px;font-size:16px}.badge{background:white;color:var(--g);border-radius:20px;padding:2px 6px;margin-left:4px}
+.main-canteen-bg{position:relative}main{max-width:1180px;margin:auto;padding:25px 18px 55px}.panel{display:none}.panel.active{display:block}
+.hero{box-shadow:0 18px 45px #173d2918;background:linear-gradient(120deg,#173d29,#2a8653);color:#fff;border-radius:25px;padding:40px;display:flex;justify-content:space-between;align-items:center;overflow:hidden}.hero h1{font-size:clamp(34px,5vw,58px);line-height:1;margin:8px 0}.hero p{color:#d9eee0;max-width:610px;font-size:17px}.heroart{font-size:100px;transform:rotate(-7deg)}.primary{background:var(--g);color:#fff;border:0;padding:12px 17px;border-radius:11px;font-weight:800}.hero .primary{background:#fff;color:#17643e}
+.title{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:26px 0 15px}.title h2{margin:0}.search{width:230px;padding:11px;border:1px solid var(--line);border-radius:10px;background:#fff}.cats{display:flex;gap:8px;overflow:auto}.cat{white-space:nowrap;padding:9px 14px;border:1px solid var(--line);background:#fff;border-radius:999px}.cat.on{background:var(--g);color:#fff;border-color:var(--g)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.card{background:#fff;border:1px solid var(--line);border-radius:17px;overflow:hidden}.pic{overflow:hidden;position:relative;height:140px;background:var(--cream);display:grid;place-items:center;font-size:68px}.body{padding:14px}.body h3{margin:0 0 4px}.muted{color:var(--muted);font-size:13px}.row{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:12px}.price{font-weight:900}.add{background:#eaf5ed;color:var(--g);border:0;border-radius:9px;padding:9px 12px;font-weight:800}.add:hover{background:var(--g);color:#fff}
+.notice{background:var(--cream);border:1px solid #f0e3b8;padding:15px;border-radius:13px;margin:20px 0}.box{background:#fff;border:1px solid var(--line);border-radius:17px;padding:18px}.cartitem{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--line);border-radius:13px;margin-bottom:9px}.emoji{font-size:34px;width:48px;text-align:center}.qty{margin-left:auto;display:flex;align-items:center;gap:8px}.qty button{width:30px;height:30px;border:0;border-radius:8px;background:#edf4ee;color:var(--g);font-weight:900}.checkout{max-width:650px;margin-top:16px}.checkout label{font-size:13px;font-weight:700}.checkout input,.checkout select,.form input{width:100%;padding:11px;margin:6px 0 12px;border:1px solid var(--line);border-radius:10px;outline:0}.total{display:flex;justify-content:space-between;font-size:20px;font-weight:900;border-top:1px solid var(--line);padding-top:14px;margin-top:8px}
+.empty{text-align:center;padding:40px;background:#fff;border:1px dashed #cbd6cd;border-radius:16px;color:var(--muted)}.orders{display:grid;gap:11px}.order{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}.status{background:#e8f5eb;color:var(--g);padding:5px 8px;border-radius:999px;font-size:12px;font-weight:800}
+.login{min-height:65vh;display:grid;place-items:center}.loginbox{background:#fff;border:1px solid var(--line);box-shadow:0 15px 40px #173d2912;border-radius:22px;padding:28px;width:min(440px,100%)}.loginbox h1{margin-top:0}.role{display:flex;gap:8px;margin-bottom:15px}.role button{flex:1;padding:10px;border:1px solid var(--line);background:#fff;border-radius:10px}.role .sel{background:var(--g);color:#fff;border-color:var(--g)}
+.adminnav{display:flex;gap:8px;overflow:auto;margin-bottom:15px}.adminnav button{padding:9px 12px;border:1px solid var(--line);background:#fff;border-radius:9px}.adminnav .sel{background:var(--g);color:#fff}.adminsec{display:none}.adminsec.active{display:block}.adminrow{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}.smallbtn{padding:8px 10px;border:0;border-radius:8px;background:#edf4ee;color:var(--g);font-weight:700}.danger{color:var(--red);background:#fff0f0}.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}.hint{font-size:12px;color:var(--muted)}
+.payopts{display:flex;gap:9px}.payopt{flex:1;border:1px solid var(--line);padding:12px;border-radius:11px;background:#fff;text-align:left}.payopt.sel{border:2px solid var(--g);background:#f0f8f2}.upiinfo{background:#f0f8f2;border:1px solid #d6eadb;border-radius:12px;padding:12px;margin:10px 0;font-size:14px}.upiapps{display:flex;gap:9px;flex-wrap:wrap}.upibtn{padding:10px 12px;border-radius:11px;border:1px solid var(--line);background:#fff;font-weight:800;display:flex;align-items:center;gap:8px;min-width:145px}.upi-logo{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;font-size:17px;font-weight:900;flex:0 0 32px}.gpay-logo{background:#fff;border:1px solid #ddd;color:#4285f4}.phonepe-logo{background:#5f259f;color:#fff}.bhim-logo{background:#1677c8;color:#fff;font-size:9px}.paytm-logo{background:#00baf2;color:#fff}.fampay-logo{background:#111;color:#fff}.other-logo{background:#edf4ee;color:var(--g)}
+.paymentPending{background:#fff8df;border:1px solid #f0d889;color:#755c00;border-radius:10px;padding:10px;margin-top:10px;font-size:13px}.receipt{background:#fff;width:min(420px,100%);margin:0 auto;border:1px solid #dfe5df;border-radius:16px;padding:24px;box-shadow:0 10px 30px #173d2910;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.receiptHead{text-align:center;border-bottom:1px dashed #aeb7b0;padding-bottom:15px;margin-bottom:14px}.receiptHead h2{margin:0 0 5px;font-family:Inter,system-ui,sans-serif}.receiptRow{display:flex;justify-content:space-between;gap:12px;margin:7px 0}.receiptItems{border-bottom:1px dashed #aeb7b0;padding-bottom:8px}.receiptTotal{font-size:18px;font-weight:900;border-top:1px solid #222;padding-top:10px;margin-top:10px}.receiptFoot{text-align:center;border-top:1px dashed #aeb7b0;margin-top:15px;padding-top:14px;font-family:Inter,system-ui,sans-serif;color:#566158;font-size:12px}.receiptActions{display:flex;gap:9px;justify-content:center;margin:15px auto;max-width:420px}.receiptActions button{flex:1;padding:11px;border-radius:10px;border:1px solid #dfe5df;background:#fff;font-weight:800}.receiptActions .primary{background:var(--g);color:#fff;border-color:var(--g)}
+@media print{header,footer,.receiptActions{display:none!important}body{background:#fff}.receipt{box-shadow:none;border:0;margin:0;width:80mm}main{padding:0}.panel:not(#receipt){display:none!important}}
+.toast{position:fixed;z-index:50;left:50%;bottom:20px;transform:translate(-50%,80px);background:#18251c;color:#fff;padding:12px 18px;border-radius:12px;transition:.25s}.toast.show{transform:translate(-50%,0)}
+footer{background:#17231a;color:#d8e2da;padding:25px 18px}.foot{max-width:1180px;margin:auto;display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}
+@media(max-width:850px){.grid{grid-template-columns:repeat(2,1fr)}.heroart{font-size:70px}.navlinks button:nth-child(1){display:none}.adminrow{grid-template-columns:1fr 1fr}.two{grid-template-columns:1fr}}
+@media(max-width:550px){main{padding:16px 12px 45px}.hero{padding:27px 22px}.heroart{display:none}.grid{grid-template-columns:1fr}.title{align-items:flex-start;flex-direction:column}.search{width:100%}.nav{padding:9px 10px}.navlinks{display:none}.adminrow{grid-template-columns:1fr}.payopts{flex-direction:column}}
+
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;background:radial-gradient(circle at 12% 18%,rgba(255,183,77,.12) 0 90px,transparent 91px),radial-gradient(circle at 88% 72%,rgba(76,175,80,.10) 0 120px,transparent 121px);opacity:.9}
+.foodpic img{width:100%;height:100%;object-fit:cover;display:block}.pic img{width:100%;height:100%;object-fit:cover;display:block}.imgfallback{width:100%;height:100%;place-items:center;font-size:42px}
+</style>
+</head>
+<body>
+<header><div class="nav">
+ <div class="logo"><div class="mark">🍴</div>CampusBite</div>
+ <div class="navlinks" id="navlinks"></div>
+ <div id="cartBtn" style="display:none"></div>
+</div></header>
+
+<main>
+<section id="login" class="panel active">
+ <div class="login"><div class="loginbox">
+  <div style="font-size:45px">🍴</div><h1>Welcome to CampusBite</h1>
+  <p class="muted">Sign in before viewing the canteen menu.</p>
+  <div class="role"><button id="studentRole" class="sel" onclick="setLoginRole('student')">Student</button><button id="adminRole" onclick="setLoginRole('admin')">Canteen Admin</button></div>
+  <div class="form" id="studentFields">
+   <label>Student name</label><input id="loginName" placeholder="Enter your name" autocomplete="name">
+   <label>Roll number / USN</label><input id="loginStudentId" placeholder="Enter roll number or USN" autocomplete="off">
+   <label>Student access code</label><input id="loginCode" type="password" inputmode="numeric" placeholder="Enter access code" autocomplete="off">
+  </div>
+  <div class="form" id="adminFields" style="display:none"><label>Admin password</label><input id="adminPassword" type="password" placeholder="Enter admin password" autocomplete="current-password"></div>
+  <button class="primary" style="width:100%" onclick="login()">Continue →</button>
+ </div></div>
+</section>
+
+<section id="home" class="panel">
+ <div class="hero"><div><div style="font-weight:800;color:#bce8ca">COLLEGE CANTEEN • QUICK • SIMPLE</div><h1>Good food.<br>Less waiting.</h1><p>Order before the break gets busy and collect your food when it’s ready.</p><button class="primary" onclick="show('menu')">Show Menu →</button></div><div class="heroart">🥪</div></div>
+ <div class="notice">⚡ <b>Smart pickup:</b> place your order now and collect it from the canteen counter.</div>
+ <div class="title"><h2>Ready to order?</h2><button class="primary" onclick="show('menu')">Show Menu</button></div>
+</section>
+
+<section id="menu" class="panel"><div class="title"><h2>Today's menu</h2><input id="search" class="search" placeholder="🔎 Search food" oninput="renderMenu()"></div><div id="cats" class="cats"></div><div id="menuGrid" class="grid" style="margin-top:16px"></div><div id="menuCartBar" class="cartbar"><button class="cart" onclick="show('cart')">🛒 View cart <span id="count" class="badge">0</span></button></div></section>
+
+<section id="cart" class="panel"><div class="title"><h2>Your cart</h2><button class="add" onclick="show('menu')">+ Add items</button></div><div id="cartArea"></div></section>
+
+<section id="orders" class="panel"><div class="title"><h2>My orders</h2></div><div id="ordersArea"></div></section>
+
+<section id="receipt" class="panel">
+ <div class="title"><h2>Digital receipt</h2><button class="add" onclick="show('orders')">← My orders</button></div>
+ <div id="receiptWrap"></div>
+</section>
+
+<section id="admin" class="panel">
+ <div class="title"><h2>⚙️ Canteen Admin</h2><button class="smallbtn" onclick="logout()">Log out</button></div>
+ <div class="adminnav"><button class="sel" onclick="adminTab('manage')">Menu</button><button onclick="adminTab('settings')">Payment & Security</button><button onclick="adminTab('orders')">Orders</button></div>
+ <div id="manage" class="adminsec active"><div class="box">
+  <h3>Add / edit menu items</h3><div class="two">
+   <div><label>Name</label><input id="fName" placeholder="Food name"></div><div><label>Price (₹)</label><input id="fPrice" type="number" placeholder="50"></div>
+   <div><label>Category</label><input id="fCat" placeholder="Snacks"></div><div><label>Emoji</label><input id="fEmoji" placeholder="🥪"></div>
+  </div><label>Description</label><input id="fDesc" placeholder="Short description">
+  <button class="primary" onclick="addFood()">Add menu item</button>
+  <hr style="border:0;border-top:1px solid var(--line);margin:20px 0"><div id="adminMenu"></div>
+ </div></div>
+ <div id="settings" class="adminsec"><div class="box">
+  <h3>UPI payment settings</h3><p class="hint">Students will use this UPI ID to create a payment request in a UPI app.</p>
+  <label>Canteen UPI ID</label><input id="upiId" placeholder="canteen@upi">
+  <label>UPI display name</label><input id="upiName" placeholder="Campus Canteen">
+  <button class="primary" onclick="saveSettings()">Save UPI settings</button>
+  <button class="smallbtn" style="margin-top:10px" onclick="copyStudentLink()">Copy shared student link</button>
+  <button class="smallbtn" style="margin-top:10px;margin-left:6px" onclick="shareStudentLink()">Share student link</button>
+  <div class="hint" style="margin-top:8px">Use this link on every mobile. The UPI ID is carried in the link, so students do not enter it. For other phones, the app must be opened from a public web link (for example GitHub Pages), not a local file/download.</div>
+  <hr style="border:0;border-top:1px solid var(--line);margin:22px 0">
+  <h3>Student access code</h3><p class="hint">Students must enter this code to log in. The code is hidden and can be changed here.</p>
+  <label>New student access code</label><input id="studentCodeSetting" type="password" inputmode="numeric" placeholder="Enter new code">
+  <button class="primary" onclick="changeStudentCode()">Change student code</button>
+  <hr style="border:0;border-top:1px solid var(--line);margin:22px 0">
+  <h3>Change admin password</h3><label>New password</label><input id="newPass" type="password" placeholder="At least 4 characters">
+  <button class="primary" onclick="changePassword()">Change password</button>
+ </div></div>
+ <div id="orders" class="adminsec"><div class="box"><h3>Student orders</h3><div id="adminOrders"></div></div></div>
+</section>
+</main>
+<footer><div class="foot"><div><b>CASTLE CANTEEN</b><br><small>Smart college canteen ordering • Real food photos from the web</small></div><div id="session"></div></div></footer>
+<div id="toast" class="toast"></div>
+
+<script>
+const defaultFoods=[
+{id:1,name:"Hyderabadi Chicken Biryani",cat:"Specials",price:95,emoji:"🍗",desc:"Hyderabadi-style chicken biryani",image:""},
+{id:2,name:"Chicken Meals",cat:"Meals",price:60,emoji:"🍛",desc:"Chicken meal",image:""},
+{id:3,name:"Chicken SPL Meal",cat:"Meals",price:85,emoji:"🍛",desc:"Special chicken meal",image:""},
+{id:4,name:"Chapathi / Dozata Sukka",cat:"Meals",price:75,emoji:"🫓",desc:"Chapathi or dozata with sukka",image:""},
+{id:5,name:"Kori Roti",cat:"Meals",price:80,emoji:"🫓",desc:"Kori roti",image:""},
+{id:6,name:"Chicken Manchurian / Chilli Chicken",cat:"Chicken",price:105,emoji:"🍗",desc:"Chicken Manchurian or chilli chicken",image:""},
+{id:7,name:"Boiled Egg",cat:"Egg",price:15,emoji:"🥚",desc:"Boiled egg",image:""},
+{id:8,name:"Veg Meals",cat:"Meals",price:60,emoji:"🥗",desc:"Vegetarian meal",image:""},
+{id:9,name:"Chapathi / Dozata Korma",cat:"Meals",price:50,emoji:"🫓",desc:"Chapathi or dozata with korma",image:""},
+{id:10,name:"Parota Egg Curry",cat:"Meals",price:60,emoji:"🍳",desc:"Parota with egg curry",image:""},
+{id:11,name:"Veg Fried Rice",cat:"Rice & Noodles",price:80,emoji:"🍚",desc:"Vegetable fried rice",image:""},
+{id:12,name:"Egg Fried Rice",cat:"Rice & Noodles",price:85,emoji:"🍳",desc:"Egg fried rice",image:""},
+{id:13,name:"Egg Meal",cat:"Meals",price:65,emoji:"🍳",desc:"Egg meal",image:""},
+{id:14,name:"Chicken Kebab",cat:"Chicken",price:50,emoji:"🍢",desc:"3 pieces",image:""},
+{id:15,name:"Egg Fried Rice Combo",cat:"Combos",price:100,emoji:"🍱",desc:"Chilli chicken + juice",image:""},
+{id:16,name:"Chicken Fried Rice",cat:"Rice & Noodles",price:95,emoji:"🍗",desc:"Chicken fried rice",image:""},
+{id:17,name:"Honey Chilli Chicken",cat:"Chicken",price:110,emoji:"🍯",desc:"Honey chilli chicken",image:""},
+{id:18,name:"Gobi Manchurian / Chilli Dry",cat:"Vegetarian",price:80,emoji:"🥦",desc:"Gobi Manchurian or chilli dry",image:""},
+{id:19,name:"Paneer Chilly / Manchurian Dry",cat:"Vegetarian",price:115,emoji:"🧀",desc:"Paneer chilly or Manchurian dry",image:""},
+{id:20,name:"Chicken Noodles",cat:"Rice & Noodles",price:95,emoji:"🍜",desc:"Chicken noodles",image:""},
+{id:21,name:"Egg Noodles",cat:"Rice & Noodles",price:85,emoji:"🍜",desc:"Egg noodles",image:""},
+{id:22,name:"Veg Noodles",cat:"Rice & Noodles",price:80,emoji:"🍜",desc:"Vegetable noodles",image:""},
+{id:23,name:"Veg Noodle / Rice Combo",cat:"Combos",price:95,emoji:"🍱",desc:"Vegetable noodle or rice combo",image:""},
+{id:24,name:"Chicken Szechuan Fried Rice / Noodles",cat:"Combos",price:105,emoji:"🍜",desc:"Chicken Szechuan fried rice or noodles",image:""}
+];
+const MENU_VERSION="2026-09-30-castle-canteen-realphotos-card-v3";
+let foods=JSON.parse(localStorage.getItem("cb_foods")||"null")||defaultFoods;
+if(localStorage.getItem("cb_menu_version")!==MENU_VERSION){ foods=defaultFoods; localStorage.setItem("cb_foods",JSON.stringify(foods)); localStorage.setItem("cb_menu_version",MENU_VERSION); }
+let cart=JSON.parse(localStorage.getItem("cb_cart")||"{}");
+let orders=JSON.parse(localStorage.getItem("cb_orders")||"[]");
+let settings=JSON.parse(localStorage.getItem("cb_settings")||"null")||{upi:"7348973756-v66f@ibl",upiName:"Campus Canteen"};
+function loadSharedUPI(){
+ try{
+  const raw=location.hash.startsWith("#upi=")?decodeURIComponent(location.hash.slice(5)):"";
+  if(raw){
+   const parts=raw.split("|");
+   if(parts[0] && /^[^\s@]+@[^\s@]+$/.test(parts[0])){
+    settings.upi=parts[0];
+    settings.upiName=parts[1]||"Campus Canteen";
+   }
+  }
+ }catch(e){}
+}
+loadSharedUPI();
+let adminPass=localStorage.getItem("cb_adminpass")||"admin123";
+let studentAccessCode=localStorage.getItem("cb_studentcode")||"554422";
+let user=JSON.parse(sessionStorage.getItem("cb_user")||"null");
+let loginRole="student",activeCat="All",payMethod="cash",selectedUPIApp="";
+
+function copyStudentLink(){
+ try{
+  if(!settings.upi){toast("Enter and save the UPI ID first");return}
+  const base=location.href.split("#")[0];
+  const payload=encodeURIComponent(settings.upi+"|"+(settings.upiName||"Campus Canteen"));
+  const link=base+"#upi="+payload;
+  if(navigator.clipboard && window.isSecureContext){
+   navigator.clipboard.writeText(link).then(()=>toast("Student link copied ✓")).catch(()=>prompt("Copy this student link:",link));
+  }else{prompt("Copy this student link:",link)}
+ }catch(e){toast("Could not create student link")}
+}
+function shareStudentLink(){
+ try{
+  if(!settings.upi){toast("Enter and save the UPI ID first");return}
+  const base=location.href.split("#")[0];
+  const link=base+"#upi="+encodeURIComponent(settings.upi+"|"+(settings.upiName||"Campus Canteen"));
+  if(navigator.share){navigator.share({title:"CASTLE CANTEEN",text:"Open CASTLE CANTEEN to order food",url:link}).catch(()=>{});}
+  else copyStudentLink();
+ }catch(e){copyStudentLink()}
+}
+function saveAll(){localStorage.setItem("cb_foods",JSON.stringify(foods));localStorage.setItem("cb_cart",JSON.stringify(cart));localStorage.setItem("cb_settings",JSON.stringify(settings));updateCount()}
+function toast(t){let x=document.getElementById("toast");x.textContent=t;x.classList.add("show");setTimeout(()=>x.classList.remove("show"),1800)}
+function money(n){return "₹"+Number(n).toFixed(0)}
+function updateCount(){document.querySelectorAll("#count").forEach(x=>x.textContent=Object.values(cart).reduce((a,b)=>a+b,0));let bar=document.getElementById("menuCartBar");if(bar)bar.style.display=user?.role==="student"?"flex":"none"}
+function setLoginRole(r){
+ loginRole=r;
+ studentRole.classList.toggle("sel",r==="student");
+ adminRole.classList.toggle("sel",r==="admin");
+ studentFields.style.display=r==="student"?"block":"none";
+ adminFields.style.display=r==="admin"?"block":"none";
+ loginName.value="";loginStudentId.value="";loginCode.value="";adminPassword.value="";
+}
+function login(){
+ if(loginRole==="admin"){
+  let v=adminPassword.value.trim();
+  if(!v){toast("Enter the admin password");return}
+  if(v!==adminPass){toast("Incorrect admin password");return}
+  user={role:"admin",name:"Canteen Admin"};
+ }else{
+  let name=loginName.value.trim(),sid=loginStudentId.value.trim(),code=loginCode.value.trim();
+  if(!name){toast("Enter your name");return}
+  if(!sid){toast("Enter your roll number or USN");return}
+  if(!code){toast("Enter the student access code");return}
+  if(code!==studentAccessCode){toast("Incorrect student access code");return}
+  user={role:"student",name,studentId:sid};
+ }
+ sessionStorage.setItem("cb_user",JSON.stringify(user));setupNav();show(user.role==="admin"?"admin":"home");toast("Welcome, "+user.name+" ✓");
+}
+function logout(){sessionStorage.removeItem("cb_user");user=null;setupNav();show("login");loginName.value=""}
+function setupNav(){
+ let n=document.getElementById("navlinks");
+ if(!user){n.innerHTML="";cartBtn.style.display="none";return}
+ updateCount();
+ n.innerHTML=user.role==="student"?`<button onclick="show('home')">Home</button><button onclick="show('orders')">Orders</button><button onclick="logout()">Log out</button>`:`<button onclick="show('admin')">Admin dashboard</button>`;
+ session.textContent=user?user.name:"";
+}
+function show(id){
+ if(!user&&id!=="login"){show("login");return}
+ document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");
+ if(id==="menu")renderMenu();if(id==="cart")renderCart();if(id==="orders")renderOrders();if(id==="admin"){renderAdminMenu();renderAdminOrders();upiId.value=settings.upi;upiName.value=settings.upiName}
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+function card(f){return `<article class="card"><div class="pic">${f.image?`<img src="${esc(f.image)}" alt="${esc(f.name)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">`:""}<span class="imgfallback" style="${f.image?"display:none;":"display:grid;"}">${f.emoji||"🍽️"}</span></div><div class="body"><h3>${esc(f.name)}</h3><div class="muted">${esc(f.desc||"Freshly prepared")}</div><div class="row"><span class="price">${money(f.price)}</span><button class="add" onclick="add(${f.id})">+ Add</button></div></div></article>`}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+function renderHome(){popular.innerHTML=foods.slice(0,4).map(card).join("")}
+function renderCats(){let cs=["All",...new Set(foods.map(f=>f.cat))];cats.innerHTML=cs.map(c=>`<button class="cat ${c===activeCat?"on":""}" onclick="activeCat='${esc(c)}';renderMenu()">${esc(c)}</button>`).join("")}
+function renderMenu(){renderCats();let q=(search.value||"").toLowerCase();let list=foods.filter(f=>(activeCat==="All"||f.cat===activeCat)&&(f.name+" "+f.desc).toLowerCase().includes(q));menuGrid.innerHTML=list.length?list.map(card).join(""):`<div class="empty" style="grid-column:1/-1">No matching food.</div>`}
+function add(id){cart[id]=(cart[id]||0)+1;saveAll();toast("Added to cart ✓")}
+function change(id,d){cart[id]=(cart[id]||0)+d;if(cart[id]<=0)delete cart[id];saveAll();renderCart()}
+function cartTotal(){return Object.entries(cart).reduce((s,[id,q])=>s+foods.find(f=>f.id==id).price*q,0)}
+function renderCart(){
+ let e=Object.entries(cart);if(!e.length){cartArea.innerHTML=`<div class="empty">🛒<br><br>Your cart is empty.<br><button class="primary" style="margin-top:12px" onclick="show('menu')">Browse menu</button></div>`;return}
+ let items=e.map(([id,q])=>{let f=foods.find(x=>x.id==id);return `<div class="cartitem"><div class="emoji">${f.emoji}</div><div><b>${esc(f.name)}</b><div class="muted">${money(f.price)} each</div></div><div class="qty"><button onclick="change(${f.id},-1)">−</button><b>${q}</b><button onclick="change(${f.id},1)">+</button></div></div>`}).join("");
+ cartArea.innerHTML=`<div>${items}</div><div class="box checkout"><h3>Pickup & payment</h3><label>Student name</label><input id="studentName" value="${esc(user?.name||"")}" placeholder="Your name"><label>Roll number / USN</label><input id="studentId" value="${esc(user?.studentId||"")}" placeholder="Roll number or USN"><label>Pickup time</label><select id="pickup"><option>As soon as ready</option><option>10:30 AM</option><option>11:00 AM</option><option>12:30 PM</option><option>1:00 PM</option><option>1:30 PM</option><option>2:00 PM</option></select><label>Payment method</label><div class="payopts"><button class="payopt ${payMethod==="cash"?"sel":""}" onclick="setPay('cash')">💵 <b>Cash</b><br><span class="hint">Pay at canteen counter</span></button><button class="payopt ${payMethod==="upi"?"sel":""}" onclick="setPay('upi')">📱 <b>UPI</b><br><span class="hint">Choose your UPI app</span></button><button class="payopt ${payMethod==="card"?"sel":""}" onclick="setPay('card')">💳 <b>Card</b><br><span class="hint">Pay by card at counter</span></button></div><div id="upiArea"></div><div id="cardArea"></div><div id="paymentStatus"></div><label>Special note (optional)</label><input id="note" placeholder="Less spicy, no onions, etc."><div class="total"><span>Total</span><span>${money(cartTotal())}</span></div><button class="primary" style="width:100%;margin-top:15px" onclick="placeOrder()">Place order • ${money(cartTotal())}</button></div>`;
+ renderUPIArea();
+ renderCardArea();
+}
+function setPay(method){
+  payMethod = method;
+  renderCart();
+}
+
+/* =========================================================
+   PAYMENT SYSTEM — COLLEGE DEMO VERSION
+   ========================================================= */
+
+let canteenUPI = "7348973756-v66f@ibl";
+let canteenName = "CASTLE CANTEEN";
+
+function renderCardArea(){
+ const area=document.getElementById("cardArea");
+ if(!area)return;
+ if(payMethod!=="card"){area.innerHTML="";return;}
+ const amount=cartTotal();
+ area.innerHTML=`<div class="upiinfo carddemo"><b>💳 Card Payment</b><br><span class="hint">Amount: ${money(amount)}</span><label>Last 6 digits of card</label><input id="cardLast6" inputmode="numeric" maxlength="6" placeholder="123456" oninput="this.value=this.value.replace(/\\D/g,'').slice(0,6)"><label>Expiry date</label><input id="cardExpiry" inputmode="numeric" maxlength="5" placeholder="MM/YY"><label>CVV</label><input id="cardCvv" type="password" inputmode="numeric" maxlength="3" placeholder="•••"><div class="hint" style="margin-top:8px">Demo only. Never enter your ATM PIN, UPI PIN, or banking PIN.</div><button class="primary" style="margin-top:10px" onclick="demoCardPayment()">Pay ${money(amount)}</button></div>`;
+}
+
+function renderUPIArea(){
+ if(payMethod!=="upi")return;
+ const area=document.getElementById("upiArea");
+ if(!area)return;
+ const amount=cartTotal();
+ const upiURL="upi://pay?pa="+encodeURIComponent(canteenUPI)+"&pn="+encodeURIComponent(canteenName)+"&am="+Number(amount).toFixed(2)+"&cu=INR";
+ const apps=[
+  {name:"Google Pay",package:"com.google.android.apps.nbu.paisa.user",logo:"G",className:"gpay-logo"},
+  {name:"PhonePe",package:"com.phonepe.app",logo:"पे",className:"phonepe-logo"},
+  {name:"BHIM",package:"in.org.npci.upiapp",logo:"BHIM",className:"bhim-logo"},
+  {name:"Paytm",package:"net.one97.paytm",logo:"P",className:"paytm-logo"},
+  {name:"FamPay",package:"com.fampay.in",logo:"F",className:"fampay-logo"}
+ ];
+ area.innerHTML=`<div class="upiinfo"><b>📱 UPI Payment</b><br><br>Pay: <b>${money(amount)}</b><br>To: <b>${escapePaymentText(canteenName)}</b><br>UPI ID: <b>${escapePaymentText(canteenUPI)}</b><div style="text-align:center;margin:16px 0"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZoAAAGaAQAAAAAefbjOAAADC0lEQVR4nO2cXWrrMBCFz1wZ+ihDF9ClKDsLXdLdgbWULqAgPwZkzn0YjZzAfWlT7DQeQyCR89EREfNzZlwhvnzlP19nAIcccsghhxxy6DkhadcAkREQkQHII9rH02xfOO1inkPbQ4kkWQCksggnXV2ELAAnBJIkb6HtzHNoe2juDgCBABaR88cL1VsA5jf2Ms+h3SC+j4sglUDktwokXuSBzHNoc0hOAJDfLgLMIshjoK799F9y6LGhSHICwGkeIOeyri3qI0jW/cxzaDOo5QZZf/YASeW1CuZXSvo7VEkfLxTYsdjcPIc2h/RErFI28xhAjRqxgpgXAeKt1v3ge3LoHghaVaYeElIBNLMEApFKIKdIthskOT34nhy6B2o+IkugIH4OQCQkjwHUWBEvglSWG1/y4Hty6B6o+QjECrIEqho19Y9khclUcB9xGIgTAuWk/sBuaTIBQGQMlLNGkj3Mc2jzqCHAUC10VAgiIKksEMRPEPMrVLDa2jyHNod6ZtnSS+1fXAUMVs02bc2jxpND7QhMsbYKQ3terABszWoNPxFHgK6rz2Tewrqg/QjAUgjPLJ8e6pplILKEut4hZgDAYi3P+GnvHnxPDv0AlHgRdRS5D8bkcREAoTc3vNY4AtRTSQD668cmT6hGMQEWPwo8ahwGEnmr4BRtFmKVsnVSYlz6PM0e5jm0Q2bZvQBiG55rzfHYux7R8k73Ec8MmYoNYA0TnCI1fljVYXe9+jwKpM3O+UXPhpyLDUTk0RwFYBNWv2RPDt0FxYtwihVyZgUw27ztuUCPxbr2a/bk0Heg3vu8EaKA67anXqvG7VHj+SErLSuwChB5DBQZ0cTMHc1zaIfq057pWrvhmkykqyDiCtWBoLWbARuSaEFkHtAEK88jDgF1PQK999nlylhvvul6xCGg4X+L1Nf8QkEsfXnxTtcBIb6Pgcgi0h7w01ixiJw8ahwKsme67GopBMkKOQEmSuxknkObQTcqtj6gAZucArqAvU7aeR7x5JD4fyZzyCGHHHLIIYe+Cf0DOZIneGta0IUAAAAASUVORK5CYII=" alt="CASTLE CANTEEN UPI QR" style="width:220px;height:220px;max-width:80%;border:8px solid #fff;border-radius:12px;box-shadow:0 3px 12px rgba(0,0,0,.15)"><div style="font-weight:700;margin-top:8px">Scan to Pay</div><div class="hint">Scan this QR with any UPI app. You can also use “Scan / Choose UPI App” below.</div></div><div class="upiapps" style="margin-top:15px">${apps.map(app=>`<button class="upibtn" onclick="openSpecific('${app.package}', '${upiURL}', '${app.name}')"><span class="upi-logo ${app.className}">${app.logo}</span><span>${app.name}</span></button>`).join("")}<button class="upibtn" onclick="openUPI('${upiURL}')"><span class="upi-logo other-logo">↗</span><span>Open UPI App</span></button><button class="upibtn" onclick="openUPI('${upiURL}')"><span class="upi-logo other-logo">▣</span><span>Scan / Choose UPI App</span></button><button class="upibtn" onclick="copyPaymentUPI()">📋 Copy UPI ID</button></div><div id="upiLaunchStatus" class="hint" style="margin-top:12px">Choose an app or scan the QR. The UPI app will handle the actual payment.</div><div class="hint" style="margin-top:10px">After you pay, this page waits for a verified UPI success response. It will not mark the order paid just because you returned to the page.</div></div>`;
+}
+
+function buildUPIIntent(packageName,uri){
+ const u=new URL(uri);
+ const query=u.search.replace(/^\?/,'');
+ return "intent://pay?"+query+"#Intent;scheme=upi;package="+packageName+";action=android.intent.action.VIEW;end";
+}
+function setUPILaunchStatus(message,failed){
+ const el=document.getElementById("upiLaunchStatus");
+ if(el){el.innerHTML=(failed?"⚠ ":"📲 ")+escapePaymentText(message);el.style.color=failed?"#9a3412":"";}
+}
+function openSpecific(packageName,uri,appName){
+ selectedUPIApp=appName;
+ setUPILaunchStatus("Opening "+appName+"…",false);
+ try{
+   const u=new URL(uri);
+   const query=u.search.replace(/^\?/,'');
+   let scheme="upi";
+   if(packageName==="com.phonepe.app") scheme="phonepe";
+   else if(packageName==="net.one97.paytm") scheme="paytmmp";
+   else if(packageName==="com.google.android.apps.nbu.paisa.user") scheme="tez";
+   else if(packageName==="in.org.npci.upiapp") scheme="bhim";
+   window.location.href=scheme+"://pay?"+query;
+   setTimeout(()=>{ if(document.visibilityState==="visible") window.location.href=buildUPIIntent(packageName,uri); },1200);
+ }catch(e){ setUPILaunchStatus(appName+" could not be opened. Use Scan to Pay instead.",true); }
+}
+function openUPI(uri){
+ selectedUPIApp="Other UPI";
+ setUPILaunchStatus("Opening an available UPI app…",false);
+ try{window.location.href=uri;}catch(e){setUPILaunchStatus("No UPI app could be opened.",true);}
+}
+function copyPaymentUPI(){
+  const value=canteenUPI;
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(value).then(()=>showPaymentMessage("UPI ID copied: "+value)).catch(()=>showPaymentMessage("UPI ID: "+value));}
+  else showPaymentMessage("UPI ID: "+value);
+}
+function showPaymentMessage(message){
+ const status=document.getElementById("paymentStatus");
+ if(status)status.innerHTML=`<div class="paymentPending" style="background:#e8f5eb;border-color:#b9dfc2;color:#17643e">✓ ${escapePaymentText(message)}</div>`;
+}
+function escapePaymentText(text){return String(text).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+
+function checkVerifiedUPIResponse(){
+  const text=(location.search+' '+location.hash).toUpperCase();
+  const success=/\b(?:STATUS|UPI_STATUS|TXNSTATUS|TRANSACTIONSTATUS)\s*=\s*SUCCESS\b/.test(text) || /[?&#](?:STATUS|UPI_STATUS|TXNSTATUS|TRANSACTIONSTATUS)=SUCCESS(?:&|#|$)/.test(location.href.toUpperCase());
+  if(success){
+    window.__verifiedUPISuccess=true;
+    const st=document.getElementById('upiLaunchStatus');
+    if(st) st.innerHTML='<b style="color:#17643e">✓ Payment verified successfully.</b><br>You can now place the order.';
+    const ps=document.getElementById('paymentStatus');
+    if(ps) ps.innerHTML='<div class="paymentPending" style="background:#e8f5eb;border-color:#b9dfc2;color:#17643e">✓ Payment Completed — verified response received.</div>';
+  }
+}
+window.addEventListener('pageshow',checkVerifiedUPIResponse);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden) checkVerifiedUPIResponse();});
+
+function placeOrder(){
+ let name=studentName.value.trim(),sid=studentId.value.trim();
+ if(!name){toast("Enter your name");return}
+ if(!sid){toast("Enter your roll number or USN");return}
+ if(payMethod==="card"){
+  const last6=(document.getElementById("cardLast6")?.value||"").trim(),exp=(document.getElementById("cardExpiry")?.value||"").trim(),cvv=(document.getElementById("cardCvv")?.value||"").trim();
+  if(!/^\d{6}$/.test(last6)){toast("Enter the last 6 card digits");return}
+  if(!/^(0[1-9]|1[0-2])\/\d{2}$/.test(exp)){toast("Enter expiry as MM/YY");return}
+  if(!/^\d{3}$/.test(cvv)){toast("Enter the 3-digit CVV");return}
+ }
+ let payment=payMethod==="upi"?"UPI":(payMethod==="card"?"Card":"Cash");
+ let paymentStatus=payMethod==="upi"?(window.__verifiedUPISuccess?"Payment Completed":"Payment Verification Pending"):(payMethod==="card"?"Payment Completed":"Payment Pending");
+ let o={id:"CB"+Date.now().toString().slice(-6),name,studentId:sid,total:cartTotal(),pickup:pickup.value,payment,paymentStatus,note:note.value,items:Object.entries(cart).map(([id,q])=>({name:foods.find(f=>f.id==id).name,q,price:foods.find(f=>f.id==id).price})),time:new Date().toLocaleString(),status:"Order received"};
+ orders.unshift(o);localStorage.setItem("cb_orders",JSON.stringify(orders));cart={};saveAll();renderReceipt(o);show("receipt");toast("Order placed ✓");
+}
+
+function renderReceipt(o){
+ let itemRows=o.items.map(i=>`<div class="receiptRow"><span>${i.q} × ${esc(i.name)}</span><span>${money(i.price*i.q)}</span></div>`).join("");
+ receiptWrap.innerHTML=`<div class="receipt"><div class="receiptHead"><div style="font-size:34px">🍴</div><h2>CampusBite</h2><div>COLLEGE CANTEEN</div><div style="margin-top:8px;font-size:13px">DIGITAL RECEIPT</div></div>
+ <div class="receiptRow"><span>Receipt / Order</span><b>#${esc(o.id)}</b></div>
+ <div class="receiptRow"><span>Student</span><span>${esc(o.name)}</span></div>
+ <div class="receiptRow"><span>Roll / USN</span><span>${esc(o.studentId||"-")}</span></div>
+ <div class="receiptRow"><span>Date & time</span><span>${esc(o.time)}</span></div>
+ <div class="receiptRow"><span>Pickup</span><span>${esc(o.pickup)}</span></div>
+ <div class="receiptItems" style="margin-top:13px">${itemRows}</div>
+ <div class="receiptRow receiptTotal"><span>TOTAL</span><span>${money(o.total)}</span></div>
+ <div class="receiptRow"><span>Payment</span><b>${esc(o.payment)}</b></div>
+ <div class="receiptRow"><span>Payment status</span><b>${esc(o.paymentStatus||((o.payment==="UPI")?"Payment Incomplete":"Payment Pending"))}</b></div>
+ ${o.payment==="UPI"&&settings.upi?`<div class="receiptRow"><span>UPI ID</span><span>${esc(settings.upi)}</span></div>`:""}
+ ${o.note?`<div style="margin-top:10px;font-size:12px">Note: ${esc(o.note)}</div>`:""}
+ <div class="receiptFoot"><b>Order received</b><br>Your order will be prepared for pickup.<br><br>Thank you for using CampusBite!</div></div>
+ <div class="receiptActions"><button class="primary" onclick="window.print()">🖨️ Print / Save PDF</button><button onclick="show('orders')">Done</button></div>`;
+}
+function renderOrders(){
+ let mine=orders.filter(o=>o.studentId===user.studentId || (!o.studentId && o.name===user.name));
+ if(!mine.length){ordersArea.innerHTML='<div class="empty">📋<br><br>No orders yet.</div>';return}
+ ordersArea.innerHTML='<div class="orders">'+mine.map(o=>`<div class="order"><div style="display:flex;justify-content:space-between"><b>Order #${o.id}</b><span class="status">${o.status}</span></div><div class="muted" style="margin-top:7px">${esc(o.name)} · ${esc(o.studentId||"-")} · ${o.items.map(i=>esc(i.name)+" × "+i.q).join(" • ")}</div><div style="margin-top:10px"><b>${money(o.total)}</b> · ${o.payment} · ${esc(o.paymentStatus||((o.payment==="UPI")?"Payment Incomplete":"Payment Pending"))} · Pickup: ${o.pickup}</div><div class="muted" style="margin-top:5px">${o.time}</div><button class="smallbtn" style="margin-top:10px" onclick='renderReceipt(${JSON.stringify(o)});show("receipt")'>View receipt</button></div>`).join('')+'</div>';
+}
+function adminTab(id){document.querySelectorAll(".adminsec").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll(".adminnav button").forEach((b,i)=>b.classList.toggle("sel",["manage","settings","orders"][i]===id));if(id==="orders")renderAdminOrders()}
+function addFood(){
+ let name=fName.value.trim(),price=Number(fPrice.value),cat=fCat.value.trim(),emoji=fEmoji.value.trim()||"🍽️",desc=fDesc.value.trim()||"Freshly prepared";
+ if(!name||!price||!cat){toast("Enter name, price and category");return}
+ foods.push({id:Date.now(),name,price,cat,emoji,desc});saveAll();fName.value=fPrice.value=fCat.value=fEmoji.value=fDesc.value="";renderAdminMenu();renderHome();toast("Menu item added ✓");
+}
+function renderAdminMenu(){adminMenu.innerHTML=foods.map(f=>`<div class="adminrow"><div><b>${esc(f.emoji)} ${esc(f.name)}</b><div class="hint">${esc(f.cat)} · ${esc(f.desc)}</div></div><input id="p${f.id}" type="number" value="${f.price}" aria-label="price"><input id="c${f.id}" value="${esc(f.cat)}" aria-label="category"><button class="smallbtn" onclick="updateFood(${f.id})">Save</button><button class="smallbtn danger" onclick="deleteFood(${f.id})">Delete</button></div>`).join("")}
+function updateFood(id){let f=foods.find(x=>x.id===id);f.price=Number(document.getElementById("p"+id).value)||f.price;f.cat=document.getElementById("c"+id).value||f.cat;saveAll();renderAdminMenu();renderMenu();renderHome();toast("Menu updated ✓")}
+function deleteFood(id){if(!confirm("Delete this menu item?"))return;foods=foods.filter(f=>f.id!==id);delete cart[id];saveAll();renderAdminMenu();renderMenu();renderHome();toast("Menu item deleted")}
+function saveSettings(){
+ let u=upiId.value.trim(),n=upiName.value.trim()||"Campus Canteen";
+ if(u&&!/^[^\s@]+@[^\s@]+$/.test(u)){toast("Enter a valid UPI ID");return}
+ settings={upi:u,upiName:n};
+ saveAll();
+ if(u){
+   const payload=encodeURIComponent(u+"|"+n);
+   history.replaceState(null,"",location.href.split("#")[0]+"#upi="+payload);
+ }
+ toast("Payment settings saved ✓ — share this page with students");
+}
+function changeStudentCode(){let c=studentCodeSetting.value.trim();if(!/^\d{4,12}$/.test(c)){toast("Student code must be 4–12 digits");return}studentAccessCode=c;localStorage.setItem("cb_studentcode",c);studentCodeSetting.value="";toast("Student access code changed ✓")}
+function changePassword(){let p=newPass.value;if(p.length<4){toast("Password must be at least 4 characters");return}adminPass=p;localStorage.setItem("cb_adminpass",p);newPass.value="";toast("Admin password changed ✓")}
+function renderAdminOrders(){if(!orders.length){adminOrders.innerHTML='<div class="empty">No student orders yet.</div>';return}adminOrders.innerHTML=orders.map((o,i)=>`<div class="order"><div style="display:flex;justify-content:space-between"><b>#${o.id} · ${esc(o.name)} · ${esc(o.studentId||"-")}</b><span class="status">${esc(o.status)}</span></div><div class="muted" style="margin-top:6px">${o.items.map(i=>esc(i.name)+" × "+i.q).join(" • ")}</div><div style="margin-top:9px"><b>${money(o.total)}</b> · ${o.payment} · ${esc(o.paymentStatus||"")} · ${o.pickup}</div><div class="muted">${o.time}</div><button class="smallbtn" style="margin-top:10px" onclick="completeOrder(${i})">Mark ready</button></div>`).join("")}
+function completeOrder(i){orders[i].status="Ready for pickup";localStorage.setItem("cb_orders",JSON.stringify(orders));renderAdminOrders();toast("Order marked ready")}
+renderHome();updateCount();setupNav();if(user){show(user.role==="admin"?"admin":"home")}else{show("login")}
+</script>
+
+<script>
+function markPaymentCompleted(orderId){
+ const orders=JSON.parse(localStorage.getItem('cb_orders')||'[]');
+ const order=orders.find(o=>String(o.id)===String(orderId));
+ if(!order)return false;
+ order.paymentStatus='Payment Completed';
+ order.paidAt=new Date().toISOString();
+ localStorage.setItem('cb_orders',JSON.stringify(orders));
+ if(typeof renderOrders==='function')renderOrders();
+ if(typeof showReceipt==='function')showReceipt(order);
+ return true;
+}
+</script>
+</body>
+</html>
